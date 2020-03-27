@@ -10,23 +10,23 @@ Go implementation of Short PAYment Descriptor - a payment QRcode generator.
 micro-service. It listens on configurable address and port, waiting for POST
 requests with JSON describing intended payment by default on port `8484`.
 
-Expected JSON does not use SPAYD keys but uses whole words instead. Is it a good
-decision? Maybe.
+JSON uses whole words instead of SPAYD keys. Is it a good decision? Maybe. Here
+is the expected keys with their expected types.
 
-```JSON
+```
 spayd = {
-	"account":      "string", // spayd:"ACC" max_len:"46" format:"IBAN" mandatory:"true"`
-	"amount":       "float",  // spayd:"AM" max_len:"10" precision:"2" mandatory:"true"`
-	"currency":     "string", // spayd:"CC" len:"3"`
-	"ref":          "string", // spayd:"RF" max_len:"16"`
-	"name":         "string", // spayd:"RN" max_len:"35"`
-	"date":         "string", // spayd:"DT" format:"date:YYYYMMDD", len:"8"`
-	"paymentType":  "string", // spayd:"PT" len:"3"`
-	"message":      "string", // spayd:"MSG" max_len:"60"`
-	"notify":       "string", // spayd:"NT" len:"1"`
-	"notifyAddress":"string", // spayd:"NTA" max_len:"320"`
-	"url":          "string", // spayd:"X-URL" max_len:"140"`
-	"vs":           "string", // spayd:"X-VS" max_len:"10" format:"numeric"`
+	string account       // spayd:"ACC" max_len:"46" format:"IBAN" mandatory:"true"`
+	float amount         // spayd:"AM" max_len:"10" precision:"2" mandatory:"true"`
+	string currency      // spayd:"CC" len:"3"`
+	string ref           // spayd:"RF" max_len:"16"`
+	string name          // spayd:"RN" max_len:"35"`
+	string date          // spayd:"DT" format:"date:YYYYMMDD", len:"8"`
+	string paymentType   // spayd:"PT" len:"3"`
+	string message       // spayd:"MSG" max_len:"60"`
+	string notify        // spayd:"NT" len:"1"`
+	string notifyAddress // spayd:"NTA" max_len:"320"`
+	string url           // spayd:"X-URL" max_len:"140"`
+	string vs            // spayd:"X-VS" max_len:"10" format:"numeric"`
 }
 ```
 
