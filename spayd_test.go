@@ -53,7 +53,34 @@ func TestEncodeAccNotIBAN(t *testing.T) {
 		t.Fatal("No error was returned")
 	}
 	if !strings.Contains(err.Error(), "IBAN") {
-		fmt.Println("Error should contain \"IBAN\".\nError: " + err.Error())
-		t.Fail()
+		t.Fatalf("Error should contain \"IBAN\".\nError: %s", err.Error())
+	}
+}
+
+func TestEncodeFormatNumerical(t *testing.T) {
+	spayd := minimalSpayd
+	spayd.VS = "1234NONNUM"
+	_, err := spayd.Encode()
+	if err == nil {
+		t.Fatal("No error was returned")
+	}
+	if !strings.Contains(err.Error(), "numbers") {
+		t.Fatalf("Error should contain \"numbers\".\nError: %s", err.Error())
+	}
+}
+
+func TestEncodeSymbols(t *testing.T) {
+	spayd := minimalSpayd
+	spayd.VS = "1234"
+	spayd.SS = "5678"
+	spayd.KS = "910"
+	bytes, err := spayd.Encode()
+	if err != nil {
+		t.Fatal(err)
+	}
+	encoded := string(bytes)
+	expected := minimalEncoded + "*X-KS:910*X-SS:5678*X-VS:1234"
+	if encoded != expected {
+		t.Fatalf("Encoded spayd \"%s\" should contain X-symbols in alphabetical order \"%s\"", encoded, expected)
 	}
 }

@@ -28,7 +28,9 @@ type Spayd struct {
 	Notify        string  `spayd:"NT" len:"1"`
 	NotifyAddress string  `spayd:"NTA" max_len:"320"`
 	Url           string  `spayd:"X-URL" max_len:"140"`
-	Vs            string  `spayd:"X-VS" max_len:"10" format:"numeric"`
+	KS            string  `spayd:"X-KS" max_len:"10" format:"numeric"`
+	SS            string  `spayd:"X-SS" max_len:"10" format:"numeric"`
+	VS            string  `spayd:"X-VS" max_len:"10" format:"numeric"`
 }
 
 func (spayd Spayd) Encode() ([]byte, error) {
@@ -74,8 +76,14 @@ func (spayd Spayd) Encode() ([]byte, error) {
 				}
 			}
 			// check format
-			if tag, defined := ft.Tag.Lookup("format"); defined {
-				if tag == "IBAN" {
+			if format, defined := ft.Tag.Lookup("format"); defined {
+				if format == "numeric" {
+					numFormat := regexp.MustCompile("^\\d+(\\.\\d+)?$")
+					if !numFormat.MatchString(str) {
+						return nil, fmt.Errorf("%s must contain only numbers", ft.Name)
+					}
+				}
+				if format == "IBAN" {
 					ibanFormat := regexp.MustCompile("CZ\\d{22}")
 					if !ibanFormat.MatchString(str) {
 						return nil, fmt.Errorf("%s must be have IBAN format - start with \"CZ\" followed by 22 digits", ft.Name)
