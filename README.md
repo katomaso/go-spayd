@@ -33,7 +33,7 @@ spayd = {
 You can simply test generator wirh `curl`
 
 ```sh
-curl  -d '{"account":"123456", "amount":12.50}' -o qrcode.png localhost:8484
+curl  -d '{"account":"CZ0000000000123456789012", "amount":12.50}' -o qrcode.png localhost:8484
 ```
 
 Embedding into your web page could be done as simply as
@@ -43,7 +43,7 @@ Embedding into your web page could be done as simply as
 
 <script type="text/javascript" async defer>
   fetch("/spayd", {
-    body: JSON.stringify({account: 12345678, amount: 150, message: "{{.Person.Email}}"})
+    body: JSON.stringify({account: CZ0000000000123456789012, amount: 150, message: "{{.Person.Email}}"})
   }).then(
     function(respose) {
       if (response.ok) {
@@ -61,4 +61,3 @@ Embedding into your web page could be done as simply as
 ## TODO
 
 * Implement all keys - currently only the most used are implemented.
-* Implement format checkers - currently only `len`, `max_len` and `mandatory` constraints are implemented

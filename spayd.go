@@ -3,12 +3,16 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/skip2/go-qrcode"
 	"net/http"
 	"reflect"
+	"regexp"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type Spayd struct {
@@ -53,27 +57,49 @@ func (spayd Spayd) Encode() ([]byte, error) {
 		default:
 			panic(fmt.Sprintf("SPAYD encoding does not support %s type\n", ft.Type.String()))
 		}
-		// check constraints
-		// check exact length
-		if tag, defined := ft.Tag.Lookup("len"); defined {
-			l, _ := strconv.Atoi(tag)
-			if len(str) > 0 && len(str) != l {
-				return nil, fmt.Errorf("%s has wrong length. Required length is %d yours is %d", ft.Name, l, len(str))
+		if str != "" {
+			// check constraints
+			// check exact length
+			if tag, defined := ft.Tag.Lookup("len"); defined {
+				l, _ := strconv.Atoi(tag)
+				if len(str) > 0 && len(str) != l {
+					return nil, fmt.Errorf("%s has wrong length. Required length is %d yours is %d", ft.Name, l, len(str))
+				}
 			}
-		}
-		// check maximal length
-		if tag, defined := ft.Tag.Lookup("max_len"); defined {
-			max_len, _ := strconv.Atoi(tag)
-			if len(str) > max_len {
-				return nil, fmt.Errorf("%s is too long. Maximal length is %d but yours is %d", ft.Name, max_len, len(str))
+			// check maximal length
+			if tag, defined := ft.Tag.Lookup("max_len"); defined {
+				max_len, _ := strconv.Atoi(tag)
+				if len(str) > max_len {
+					return nil, fmt.Errorf("%s is too long. Maximal length is %d but yours is %d", ft.Name, max_len, len(str))
+				}
 			}
-		}
-		// check format
-		// if tag, defined := ft.Tag.Lookup("format"); defined {
-		// 	// TODO
-		// }
-
-		if len(str) != 0 {
+			// check format
+			if tag, defined := ft.Tag.Lookup("format"); defined {
+				if tag == "IBAN" {
+					ibanFormat := regexp.MustCompile("CZ\\d{22}")
+					if !ibanFormat.MatchString(str) {
+						return nil, errors.New("IBAN must start with \"CZ\" followed by 22 digits")
+					}
+				}
+				if strings.HasPrefix(tag, "date") {
+					dateFormat := "YYYYMMDD"
+					if strings.Contains(tag, ":") {
+						dateFormat = tag[strings.LastIndex(tag, ":"):] // substring
+					}
+					dateFormat = strings.Replace(str, "YYYY", "2006", 1)
+					dateFormat = strings.Replace(str, "YY", "06", 1)
+					dateFormat = strings.Replace(str, "MM", "01", 1)
+					dateFormat = strings.Replace(str, "DD", "02", 1)
+					date, err := time.Parse(dateFormat, str)
+					if err != nil {
+						return nil, err
+					}
+					if date.Before(time.Now().Truncate(24 * time.Hour)) {
+						return nil, errors.New("Date of the transaction must not be in past")
+					}
+				}
+			}
+			// print to SPD query
 			buffer.WriteString("*")
 			buffer.WriteString(ft.Tag.Get("spayd"))
 			buffer.WriteString(":")

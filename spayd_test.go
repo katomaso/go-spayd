@@ -7,21 +7,21 @@ import (
 )
 
 func TestEncodeMinimal(t *testing.T) {
-	spayd := Spayd{Account: "Hello", Amount: 12.34, Currency: "CZK"}
+	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZK"}
 	bytes, err := spayd.Encode()
 	if err != nil {
 		fmt.Println(err)
 		t.Fail()
 	}
 	encoded := string(bytes)
-	if "SPD*1.0*ACC:Hello*AM:12.34*CC:CZK" != encoded {
-		fmt.Println("Should be \"SPD*1.0*ACC:Hello*AM:12.34*CC:CZK\"; is " + encoded)
+	if "SPD*1.0*ACC:CZ0000000000123456789012*AM:12.34*CC:CZK" != encoded {
+		fmt.Println("Should be \"SPD*1.0*ACC:CZ0000000000123456789012*AM:12.34*CC:CZK\"; is " + encoded)
 		t.Fail()
 	}
 }
 
 func TestEncodeCurrecntyNot3Long(t *testing.T) {
-	spayd := Spayd{Account: "Hello", Amount: 12.34, Currency: "CZKX"}
+	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZKX"}
 	_, err := spayd.Encode()
 	if err == nil {
 		t.Fail()
@@ -33,13 +33,25 @@ func TestEncodeCurrecntyNot3Long(t *testing.T) {
 }
 
 func TestEncodeRefTooLong(t *testing.T) {
-	spayd := Spayd{Account: "Hello", Amount: 12.34, Currency: "CZK", Ref: "1234567890123456X"}
+	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZK", Ref: "1234567890123456X"}
 	_, err := spayd.Encode()
 	if err == nil {
 		t.Fail()
 	}
 	if !strings.Contains(err.Error(), "too long") {
 		fmt.Println("Error should contain \"too long\".\nError: " + err.Error())
+		t.Fail()
+	}
+}
+
+func TestEncodeAccNotIBAN(t *testing.T) {
+	spayd := Spayd{Account: "NotIBAN", Amount: 12.34, Currency: "CZK"}
+	_, err := spayd.Encode()
+	if err == nil {
+		t.Fail()
+	}
+	if !strings.Contains(err.Error(), "IBAN") {
+		fmt.Println("Error should contain \"IBAN\".\nError: " + err.Error())
 		t.Fail()
 	}
 }
