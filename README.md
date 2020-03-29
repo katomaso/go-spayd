@@ -15,18 +15,20 @@ is the expected keys with their expected types.
 
 ```
 spayd = {
-	string account       // spayd:"ACC" max_len:"46" format:"IBAN" mandatory:"true"`
-	float amount         // spayd:"AM" max_len:"10" precision:"2" mandatory:"true"`
-	string currency      // spayd:"CC" len:"3"`
-	string ref           // spayd:"RF" max_len:"16"`
-	string name          // spayd:"RN" max_len:"35"`
-	string date          // spayd:"DT" format:"date:YYYYMMDD", len:"8"`
-	string paymentType   // spayd:"PT" len:"3"`
-	string message       // spayd:"MSG" max_len:"60"`
-	string notify        // spayd:"NT" len:"1"`
-	string notifyAddress // spayd:"NTA" max_len:"320"`
-	string url           // spayd:"X-URL" max_len:"140"`
-	string vs            // spayd:"X-VS" max_len:"10" format:"numeric"`
+  Account       string  `spayd:"ACC" max_len:"46" format:"IBAN" mandatory:"true"`
+  Amount        float64 `spayd:"AM" max_len:"10" mandatory:"true"`
+  Currency      string  `spayd:"CC" len:"3"`
+  Ref           string  `spayd:"RF" max_len:"16"`
+  Name          string  `spayd:"RN" max_len:"35"`
+  Date          string  `spayd:"DT" format:"date:YYYYMMDD", len:"8"`
+  PaymentType   string  `spayd:"PT" len:"3"`
+  Message       string  `spayd:"MSG" max_len:"60"`
+  Notify        string  `spayd:"NT" len:"1"`
+  NotifyAddress string  `spayd:"NTA" max_len:"320"`
+  Url           string  `spayd:"X-URL" max_len:"140"`
+  KS            string  `spayd:"X-KS" max_len:"10" format:"numeric"`
+  SS            string  `spayd:"X-SS" max_len:"10" format:"numeric"`
+  VS            string  `spayd:"X-VS" max_len:"10" format:"numeric"`
 }
 ```
 
