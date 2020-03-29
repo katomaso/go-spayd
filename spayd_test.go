@@ -1,54 +1,56 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
 
+var (
+	minimalSpayd   = Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZK"}
+	minimalEncoded = "SPD*1.0*ACC:CZ0000000000123456789012*AM:12.34*CC:CZK"
+)
+
 func TestEncodeMinimal(t *testing.T) {
-	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZK"}
-	bytes, err := spayd.Encode()
+	bytes, err := minimalSpayd.Encode()
 	if err != nil {
-		fmt.Println(err)
-		t.Fail()
+		t.Fatal(err)
 	}
 	encoded := string(bytes)
-	if "SPD*1.0*ACC:CZ0000000000123456789012*AM:12.34*CC:CZK" != encoded {
-		fmt.Println("Should be \"SPD*1.0*ACC:CZ0000000000123456789012*AM:12.34*CC:CZK\"; is " + encoded)
-		t.Fail()
+	if minimalEncoded != encoded {
+		t.Fatalf("Should be \"%s\"; is \"%s\"", minimalEncoded, encoded)
 	}
 }
 
 func TestEncodeCurrecntyNot3Long(t *testing.T) {
-	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZKX"}
+	spayd := minimalSpayd // perform a copy
+	spayd.Currency = "CZKXX"
 	_, err := spayd.Encode()
 	if err == nil {
-		t.Fail()
+		t.Fatal("No error was returned")
 	}
 	if !strings.Contains(err.Error(), "wrong length") {
-		fmt.Println("Error should contain \"wrong length\"\nError: " + err.Error())
-		t.Fail()
+		t.Fatalf("Error should contain \"wrong length\"\nError: %s", err.Error())
 	}
 }
 
 func TestEncodeRefTooLong(t *testing.T) {
-	spayd := Spayd{Account: "CZ0000000000123456789012", Amount: 12.34, Currency: "CZK", Ref: "1234567890123456X"}
+	spayd := minimalSpayd
+	spayd.Ref = "1234567890123456X"
 	_, err := spayd.Encode()
 	if err == nil {
-		t.Fail()
+		t.Fatal("No error was returned")
 	}
 	if !strings.Contains(err.Error(), "too long") {
-		fmt.Println("Error should contain \"too long\".\nError: " + err.Error())
-		t.Fail()
+		t.Fatalf("Error should contain \"too long\".\nError: %s", err.Error())
 	}
 }
 
 func TestEncodeAccNotIBAN(t *testing.T) {
-	spayd := Spayd{Account: "NotIBAN", Amount: 12.34, Currency: "CZK"}
+	spayd := minimalSpayd
+	spayd.Account = "NotIBAN"
 	_, err := spayd.Encode()
 	if err == nil {
-		t.Fail()
+		t.Fatal("No error was returned")
 	}
 	if !strings.Contains(err.Error(), "IBAN") {
 		fmt.Println("Error should contain \"IBAN\".\nError: " + err.Error())

@@ -61,9 +61,9 @@ func (spayd Spayd) Encode() ([]byte, error) {
 			// check constraints
 			// check exact length
 			if tag, defined := ft.Tag.Lookup("len"); defined {
-				l, _ := strconv.Atoi(tag)
-				if len(str) > 0 && len(str) != l {
-					return nil, fmt.Errorf("%s has wrong length. Required length is %d yours is %d", ft.Name, l, len(str))
+				length, _ := strconv.Atoi(tag)
+				if len(str) != length {
+					return nil, fmt.Errorf("%s has wrong length. Required length is %d yours is %d", ft.Name, length, len(str))
 				}
 			}
 			// check maximal length
@@ -78,13 +78,13 @@ func (spayd Spayd) Encode() ([]byte, error) {
 				if tag == "IBAN" {
 					ibanFormat := regexp.MustCompile("CZ\\d{22}")
 					if !ibanFormat.MatchString(str) {
-						return nil, errors.New("IBAN must start with \"CZ\" followed by 22 digits")
+						return nil, fmt.Errorf("%s must be have IBAN format - start with \"CZ\" followed by 22 digits", ft.Name)
 					}
 				}
-				if strings.HasPrefix(tag, "date") {
+				if strings.HasPrefix(format, "date") {
 					dateFormat := "YYYYMMDD"
-					if strings.Contains(tag, ":") {
-						dateFormat = tag[strings.LastIndex(tag, ":"):] // substring
+					if strings.Contains(format, ":") {
+						dateFormat = format[strings.LastIndex(format, ":"):] // substring
 					}
 					dateFormat = strings.Replace(str, "YYYY", "2006", 1)
 					dateFormat = strings.Replace(str, "YY", "06", 1)
