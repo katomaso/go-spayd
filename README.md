@@ -35,8 +35,10 @@ spayd = {
 You can simply test generator wirh `curl`
 
 ```sh
-curl  -d '{"account":"CZ0000000000123456789012", "amount":12.50}' -o qrcode.png localhost:8484
+curl  -d '{"account":"CZ7562106701002206308683", "amount":125.50}' -o qrcode.png localhost:8484
 ```
+
+![result](https://raw.githubusercontent.com/katomaso/go-spayd/master/qrcode.png "Resulting QRcode")
 
 Embedding into your web page could be done as simply as
 
@@ -45,7 +47,7 @@ Embedding into your web page could be done as simply as
 
 <script type="text/javascript" async defer>
   fetch("/spayd", {
-    body: JSON.stringify({account: CZ0000000000123456789012, amount: 150, message: "{{.Person.Email}}"})
+    body: JSON.stringify({account: CZ7562106701002206308683, amount: 150, message: "thank you!"})
   }).then(
     function(respose) {
       if (response.ok) {
