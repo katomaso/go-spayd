@@ -39,7 +39,6 @@ curl  -d '{"account":"CZ7562106701002206308683", "amount":125.50}' -o qrcode.png
 ```
 
 ![result](https://raw.githubusercontent.com/katomaso/go-spayd/master/qrcode.png "Resulting QRcode")
-
 Embedding into your web page could be done as simply as
 
 ```html
@@ -47,18 +46,33 @@ Embedding into your web page could be done as simply as
 
 <script type="text/javascript" async defer>
   fetch("/spayd", {
-    body: JSON.stringify({account: CZ7562106701002206308683, amount: 150, message: "thank you!"})
+    method: 'POST',
+    body: JSON.stringify({account: "CZ7562106701002206308683", amount: 150, message: "{{.Person.Email}}"})
   }).then(
-    function(respose) {
+    function(response) {
       if (response.ok) {
-        var img = document.createElement("img");
-        img.src="data:image/png;base64,"+btoa.encode(response.Body.arrayBuffer())
-        document.queryElement("div#qrcode").appendChild(img);
+        return response.blob();
       } else {
-        console.log(response.body.text())
+        throw response.text();
       }
     }
-  );
+  ).then(function(blob) {
+    // easy converting blob to base64 in javascript
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  })
+  .then(function(encoded) {
+    var img = document.createElement("img");
+    img.src=encoded;
+    document.querySelector("div#qrcode").appendChild(img);
+  })
+  .catch(function(reason) {
+    console.log(reason);
+  });
 </script>
 ```
 
